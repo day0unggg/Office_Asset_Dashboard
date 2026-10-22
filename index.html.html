@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LS머트리얼즈 자산 관리 현황</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-anthropic-sans: "Noto Sans KR", "Pretendard", -apple-system, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --cds-radius: 0px;
+  --cds-dur-slow: 0.3s;
+}
+html, body { margin: 0; padding: 0; background: #f4f3f0; }
+.am { min-height: 100vh; border-radius: 0 !important; }
+</style>
+<script>
+/* ---------- 자산 데이터 (여기만 고치면 대시보드 전체가 바뀌어요) ---------- */
+const RAW = {
+  assets: [
+    {
+      "asset_id": "AS-001",
+      "category": "정수기",
+      "location": "본관 2층 탕비실",
+      "vendor": "맑은물렌탈",
+      "rental_start": "2024-03-01",
+      "monthly_fee": "39900",
+      "rental_end": "2027-02-28",
+      "inspection_cycle_months": "4",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-002",
+      "category": "정수기",
+      "location": "본관 5층 탕비실",
+      "vendor": "맑은물렌탈",
+      "rental_start": "2024-03-01",
+      "monthly_fee": "39900",
+      "rental_end": "2027-02-28",
+      "inspection_cycle_months": "4",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-003",
+      "category": "공기청정기",
+      "location": "본관 대회의실",
+      "vendor": "청정케어",
+      "rental_start": "2025-01-15",
+      "monthly_fee": "32000",
+      "rental_end": "2027-01-14",
+      "inspection_cycle_months": "6",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-004",
+      "category": "공기청정기",
+      "location": "사무동 3층",
+      "vendor": "청정케어",
+      "rental_start": "2023-11-20",
+      "monthly_fee": "32000",
+      "rental_end": "2026-11-19",
+      "inspection_cycle_months": "6",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-005",
+      "category": "제빙기",
+      "location": "본관 1층 라운지",
+      "vendor": "아이스원",
+      "rental_start": "2025-06-01",
+      "monthly_fee": "68000",
+      "rental_end": "2028-05-31",
+      "inspection_cycle_months": "3",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-006",
+      "category": "커피머신",
+      "location": "본관 1층 라운지",
+      "vendor": "브루웍스",
+      "rental_start": "2024-09-01",
+      "monthly_fee": "115000",
+      "rental_end": "2026-12-31",
+      "inspection_cycle_months": "2",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-007",
+      "category": "시스템 에어컨",
+      "location": "본관 전층",
+      "vendor": "쿨링테크",
+      "rental_start": "2022-05-01",
+      "monthly_fee": "420000",
+      "rental_end": "2027-04-30",
+      "inspection_cycle_months": "6",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-008",
+      "category": "TV",
+      "location": "본관 대회의실",
+      "vendor": "비전렌탈",
+      "rental_start": "2025-03-10",
+      "monthly_fee": "45000",
+      "rental_end": "2028-03-09",
+      "inspection_cycle_months": "12",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-009",
+      "category": "복합기",
+      "location": "본관 2층",
+      "vendor": "오피스프린트",
+      "rental_start": "2024-01-02",
+      "monthly_fee": "150000",
+      "rental_end": "2026-12-31",
+      "inspection_cycle_months": "3",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-010",
+      "category": "복합기",
+      "location": "사무동 3층",
+      "vendor": "오피스프린트",
+      "rental_start": "2024-01-02",
+      "monthly_fee": "150000",
+      "rental_end": "2026-12-31",
+      "inspection_cycle_months": "3",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-011",
+      "category": "비데",
+      "location": "본관 화장실 8대",
+      "vendor": "클린홈케어",
+      "rental_start": "2023-10-30",
+      "monthly_fee": "96000",
+      "rental_end": "2026-10-29",
+      "inspection_cycle_months": "2",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-012",
+      "category": "안마의자",
+      "location": "본관 4층 휴게실",
+      "vendor": "릴렉스렌탈",
+      "rental_start": "2025-08-01",
+      "monthly_fee": "89000",
+      "rental_end": "2028-07-31",
+      "inspection_cycle_months": "6",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-013",
+      "category": "냉장고",
+      "location": "본관 5층 탕비실",
+      "vendor": "홈가전렌탈",
+      "rental_start": "2024-05-01",
+      "monthly_fee": "29900",
+      "rental_end": "2027-04-30",
+      "inspection_cycle_months": "12",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-014",
+      "category": "빔프로젝터",
+      "location": "교육장",
+      "vendor": "비전렌탈",
+      "rental_start": "2025-02-01",
+      "monthly_fee": "55000",
+      "rental_end": "2027-01-31",
+      "inspection_cycle_months": "12",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-015",
+      "category": "화상회의 장비",
+      "location": "본관 중회의실",
+      "vendor": "비전렌탈",
+      "rental_start": "2025-04-01",
+      "monthly_fee": "78000",
+      "rental_end": "2028-03-31",
+      "inspection_cycle_months": "6",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    },
+    {
+      "asset_id": "AS-016",
+      "category": "노트북",
+      "location": "임직원 30대",
+      "vendor": "IT렌탈플러스",
+      "rental_start": "2024-07-01",
+      "monthly_fee": "1350000",
+      "rental_end": "2027-06-30",
+      "inspection_cycle_months": "12",
+      "manager": "홍길동",
+      "phone": "010-0000-0000"
+    }
+  ]
+};
+
+/* ---------- 데이터 계산 도우미 ---------- */
+window.d3 = {
+  format: () => (n) => Number(n).toLocaleString('ko-KR'),
+  group: (arr, key) => { const m = new Map(); arr.forEach(x => { const k = key(x); if (!m.has(k)) m.set(k, []); m.get(k).push(x); }); return m; }
+};
+window.dash = (() => {
+  const calcs = {}, cache = {}, subs = [];
+  const data = (id) => {
+    if (RAW[id]) return { status: 'ok', data: RAW[id] };
+    if (calcs[id]) {
+      if (!cache[id]) cache[id] = calcs[id].fn(...calcs[id].inputs.map(i => data(i).data));
+      return { status: 'ok', data: cache[id] };
+    }
+    return { status: 'missing', data: [] };
+  };
+  window.addEventListener('resize', () => subs.forEach(f => f()));
+  return {
+    calc: (id, o) => { calcs[id] = o; },
+    data,
+    onData: (fn) => { subs.push(fn); fn(); },
+    setLink: (name) => { history.replaceState(null, '', '#' + name); }
+  };
+})();
+</script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+.am {
+  --am-navy: #0f1b33; --am-navy2: #1c2740; --am-bg: #f4f3f0; --am-card: #ffffff; --am-line: #e6e3dd;
+  --am-text: #1b2232; --am-muted: #6b7280; --am-accent: #14a38b; --am-blue: #2c3e6e; --am-red: #d14343; --am-amber: #c4830c;
+  font-family: var(--font-anthropic-sans); background: var(--am-bg); color: var(--am-text); border-radius: var(--cds-radius); overflow: hidden;
+}
+.am-top { background: var(--am-navy); color: #fff; padding: 20px clamp(16px, 4vw, 36px); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.am-title { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; }
+.am-sub { font-size: 0.85rem; color: #b9c2d3; margin-top: 4px; }
+.am-asof { font-size: 0.85rem; color: #4fd1b5; font-variant-numeric: tabular-nums; }
+.am-tabs { background: var(--am-navy2); display: flex; gap: 4px; padding: 0 clamp(8px, 3vw, 24px); overflow-x: auto; }
+.am-tabs button { font: inherit; font-size: 0.95rem; color: #b9c2d3; background: none; border: 0; border-bottom: 3px solid transparent; padding: 14px 18px 11px; cursor: pointer; white-space: nowrap; }
+.am-tabs button[aria-selected="true"] { color: #fff; font-weight: 700; border-bottom-color: var(--am-accent); }
+.am-main { padding: 24px clamp(16px, 4vw, 36px) 36px; max-width: 1280px; margin-inline: auto; display: flex; flex-direction: column; gap: 24px; }
+.am-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 14px; }
+.am-card { background: var(--am-card); border: 1px solid var(--am-line); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+.am-tl { font-size: 0.82rem; color: var(--am-muted); }
+.am-big { font-size: 1.7rem; font-weight: 700; margin-top: 8px; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.am-big small { font-size: 0.95rem; font-weight: 600; margin-left: 2px; }
+.am-tnote { font-size: 0.78rem; color: var(--am-muted); margin-top: 4px; }
+.am-sechead { font-size: 0.95rem; font-weight: 700; color: #3a4357; margin: 0 0 10px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.am-sechead span { font-size: 0.8rem; font-weight: 400; color: var(--am-muted); }
+.am-split { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.am-split > .am-left { flex: 999 1 26rem; min-width: 0; }
+.am-split > .am-detail { flex: 1 1 18rem; position: sticky; top: 12px; }
+.am-boxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 11.5rem), 1fr)); gap: 12px; min-height: 200px; }
+.am-box { all: unset; box-sizing: border-box; background: var(--am-card); border: 1px solid var(--am-line); border-radius: 12px; padding: 14px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; transition: box-shadow .15s, border-color .15s; }
+.am-box:hover { box-shadow: 0 4px 14px rgba(15, 27, 51, .08); border-color: #cfd5e1; }
+.am-box:focus-visible { outline: 2px solid var(--am-accent); outline-offset: 2px; }
+.am-box[aria-pressed="true"] { border: 2px solid var(--am-blue); padding: 13px 15px; box-shadow: 0 4px 16px rgba(44, 62, 110, .15); }
+.am-box-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.am-ico { width: 32px; height: 32px; border-radius: 9px; background: #eef1f7; color: var(--am-blue); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex: none; }
+.am-box-name { font-weight: 700; font-size: 1rem; }
+.am-box-loc { font-size: 0.8rem; color: var(--am-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.am-box-foot { display: flex; justify-content: space-between; font-size: 0.8rem; color: #3a4357; margin-top: 4px; font-variant-numeric: tabular-nums; border-top: 1px dashed var(--am-line); padding-top: 8px; }
+.am-badge { font-size: 0.72rem; font-weight: 700; border-radius: 999px; padding: 3px 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.am-b-red { background: #fdecec; color: var(--am-red); }
+.am-b-amber { background: #fdf3e1; color: var(--am-amber); }
+.am-b-gray { background: #eef0f3; color: #4b5563; }
+.am-b-blue { background: #e9eef8; color: var(--am-blue); }
+.am-detail h3 { margin: 0; font-size: 1.15rem; }
+.am-dloc { font-size: 0.85rem; color: var(--am-muted); margin-top: 2px; }
+.am-qr { display: flex; align-items: center; gap: 10px; background: #f6f7f9; border-radius: 10px; padding: 10px 12px; margin: 14px 0 6px; font-size: 0.8rem; color: var(--am-muted); }
+.am-qr b { color: var(--am-text); font-variant-numeric: tabular-nums; }
+.am-qr svg { flex: none; }
+.am-dl { display: grid; grid-template-columns: auto 1fr; gap: 0; margin: 0; }
+.am-dl dt, .am-dl dd { padding: 10px 0; border-bottom: 1px solid var(--am-line); font-size: 0.9rem; margin: 0; }
+.am-dl dt { color: var(--am-muted); padding-right: 16px; white-space: nowrap; }
+.am-dl dd { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.am-dl dt:last-of-type, .am-dl dd:last-of-type { border-bottom: 0; }
+.am-empty { color: var(--am-muted); font-size: 0.9rem; padding: 24px 0; text-align: center; }
+.am-cal-wrap { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.am-cal-wrap > .am-cal { flex: 999 1 30rem; min-width: 0; container-type: inline-size; }
+.am-cal-wrap > .am-list { flex: 1 1 17rem; }
+.am-calhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.am-month { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.am-nav { display: flex; gap: 6px; }
+.am-nav button { font: inherit; font-size: 0.85rem; background: #fff; color: var(--am-text); border: 1px solid var(--am-line); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.am-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.8rem; color: var(--am-muted); margin-bottom: 10px; }
+.am-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.am-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.am-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-top: 1px solid var(--am-line); border-left: 1px solid var(--am-line); min-height: 420px; }
+.am-dow { font-size: 0.78rem; color: var(--am-muted); text-align: center; padding: 6px 0; border-right: 1px solid var(--am-line); border-bottom: 1px solid var(--am-line); background: #fafaf8; }
+.am-day { border-right: 1px solid var(--am-line); border-bottom: 1px solid var(--am-line); min-height: 92px; padding: 4px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.am-day.out { background: #fafaf8; }
+.am-day.out .am-dn { color: #b8bcc5; }
+.am-dn { font-size: 0.78rem; color: #3a4357; font-variant-numeric: tabular-nums; align-self: flex-start; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+.am-day.today .am-dn { background: var(--am-accent); color: #fff; font-weight: 700; }
+.am-dow.sun, .am-day .am-dn.sun { color: var(--am-red); }
+.am-pill { all: unset; box-sizing: border-box; display: block; font-size: 0.7rem; line-height: 1.35; padding: 2px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: #fff; max-width: 100%; }
+.am-more { font-size: 0.7rem; color: var(--am-muted); padding-left: 4px; }
+.am-dots { display: none; gap: 3px; flex-wrap: wrap; padding: 2px; }
+@container (max-width: 34rem) {
+  .am-day { min-height: 56px; }
+  .am-day .am-pill, .am-day .am-more { display: none; }
+  .am-dots { display: flex; }
+}
+.am-list h4 { margin: 0 0 4px; font-size: 1rem; }
+.am-list .am-tnote { margin: 0 0 10px; }
+.am-items { display: flex; flex-direction: column; max-height: 560px; overflow: auto; }
+.am-item { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 4.2rem 1fr; gap: 10px; align-items: start; padding: 10px 2px; border-bottom: 1px solid var(--am-line); cursor: pointer; }
+.am-item:last-child { border-bottom: 0; }
+.am-item:hover { background: #fafaf8; }
+.am-idate { font-size: 0.85rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.am-idate small { display: block; font-weight: 400; color: var(--am-muted); font-size: 0.75rem; }
+.am-ibody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.am-ibody b { font-size: 0.9rem; }
+.am-ibody span { font-size: 0.78rem; color: var(--am-muted); }
+.am-fail { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: inherit; color: var(--am-muted); font-size: 0.8rem; grid-column: 1 / -1; }
+.am-fail i { width: .375rem; height: .375rem; border-radius: 50%; background: var(--am-red); display: inline-block; }
+.am [data-dash-source-state=empty] { color: transparent; }
+.am [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+</style>
+
+<div class="am">
+  <header class="am-top" id="top">
+    <div>
+      <div class="am-title">LS머트리얼즈 자산 관리 현황</div>
+      <div class="am-sub">사내 렌탈 자산 · 계약 · 정기 점검을 한눈에</div>
+    </div>
+    <div class="am-asof">기준일 · <span class="dash-skeleton" id="asof" data-source="asset_status" data-field="today" data-row="0">—</span></div>
+  </header>
+  <nav class="am-tabs" role="tablist" aria-label="페이지">
+    <button role="tab" id="tab-assets" data-tab="assets" aria-selected="true">자산</button>
+    <button role="tab" id="tab-calendar" data-tab="calendar" aria-selected="false">캘린더</button>
+  </nav>
+
+  <main class="am-main">
+    <section id="assets" class="am-page">
+      <div class="am-tiles">
+        <div class="am-card">
+          <div class="am-tl">관리 중인 자산</div>
+          <div class="am-big"><span class="dash-skeleton" data-source="summary" data-field="count" data-row="0">—</span><small>개</small></div>
+          <div class="am-tnote">렌탈 계약 기준</div>
+        </div>
+        <div class="am-card">
+          <div class="am-tl">월 렌탈 비용 합계</div>
+          <div class="am-big"><span class="dash-skeleton" data-source="summary" data-field="monthly_total" data-row="0">—</span><small>원</small></div>
+          <div class="am-tnote">연간 <span class="dash-skeleton" data-source="summary" data-field="yearly_total" data-row="0">—</span>원</div>
+        </div>
+        <div class="am-card">
+          <div class="am-tl">90일 안에 계약 만료</div>
+          <div class="am-big" style="color: var(--am-red)"><span class="dash-skeleton" data-source="summary" data-field="expiring_90" data-row="0">—</span><small>건</small></div>
+          <div class="am-tnote">갱신 또는 반납 결정이 필요해요</div>
+        </div>
+        <div class="am-card">
+          <div class="am-tl">이번 달 정기 점검</div>
+          <div class="am-big"><span class="dash-skeleton" data-source="summary" data-field="inspections_this_month" data-row="0">—</span><small>건</small></div>
+          <div class="am-tnote">캘린더 탭에서 날짜별로 볼 수 있어요</div>
+        </div>
+      </div>
+
+      <div class="am-split" style="margin-top: 24px">
+        <div class="am-left">
+          <div class="am-sechead">자산 목록 <span>박스를 누르면 오른쪽에 상세 정보가 나와요 · 계약 만료가 가까운 순</span></div>
+          <div class="am-boxes" id="boxes" data-source="assets asset_status"></div>
+        </div>
+        <aside class="am-card am-detail" id="detail">
+          <h3 id="d-name" class="dash-skeleton" data-source="assets" data-field="category">—</h3>
+          <div class="am-dloc" id="d-loc" data-source="assets" data-field="location">—</div>
+          <div class="am-qr">
+            <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><g fill="#1b2232"><rect x="1" y="1" width="12" height="12" rx="2"/><rect x="21" y="1" width="12" height="12" rx="2"/><rect x="1" y="21" width="12" height="12" rx="2"/></g><g fill="#fff"><rect x="4" y="4" width="6" height="6"/><rect x="24" y="4" width="6" height="6"/><rect x="4" y="24" width="6" height="6"/></g><g fill="#1b2232"><rect x="16" y="2" width="3" height="3"/><rect x="16" y="9" width="3" height="3"/><rect x="21" y="16" width="3" height="3"/><rect x="28" y="16" width="3" height="3"/><rect x="16" y="16" width="3" height="3"/><rect x="2" y="16" width="3" height="3"/><rect x="9" y="16" width="3" height="3"/><rect x="21" y="23" width="3" height="3"/><rect x="28" y="28" width="4" height="4"/><rect x="16" y="23" width="3" height="3"/><rect x="16" y="29" width="3" height="3"/><rect x="24" y="29" width="3" height="3"/></g></svg>
+            <div>자산 QR 코드 번호<br><b id="d-id" data-source="assets" data-field="asset_id">—</b></div>
+          </div>
+          <dl class="am-dl">
+            <dt>회사 명</dt><dd><span class="d-f" data-source="assets" data-field="vendor">—</span></dd>
+            <dt>렌탈 시작일</dt><dd><span class="d-f" data-source="assets" data-field="rental_start">—</span></dd>
+            <dt>월 비용</dt><dd><span class="d-f" data-source="assets" data-field="monthly_fee">—</span></dd>
+            <dt>렌탈 종료일</dt><dd><span class="d-f" data-source="assets" data-field="rental_end">—</span> <span class="am-badge d-s" data-source="asset_status" data-field="days_to_end">—</span></dd>
+            <dt>담당자 이름</dt><dd><span class="d-f" data-source="assets" data-field="manager">—</span></dd>
+            <dt>담당자 연락처</dt><dd><span class="d-f" data-source="assets" data-field="phone">—</span></dd>
+            <dt>정기 점검 주기</dt><dd><span class="d-f" data-source="assets" data-field="inspection_cycle_months">—</span></dd>
+            <dt>다음 점검일</dt><dd><span class="d-s" data-source="asset_status" data-field="next_inspection">—</span></dd>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section id="calendar" class="am-page" hidden>
+      <div class="am-cal-wrap">
+        <div class="am-card am-cal">
+          <div class="am-calhead">
+            <div class="am-month" id="cal-month">—</div>
+            <div class="am-nav">
+              <button id="cal-prev" aria-label="이전 달">‹ 이전</button>
+              <button id="cal-today">이번 달</button>
+              <button id="cal-next" aria-label="다음 달">다음 ›</button>
+            </div>
+          </div>
+          <div class="am-legend">
+            <span><i class="am-dot" style="background: var(--am-blue)"></i>정기 점검</span>
+            <span><i class="am-dot" style="background: var(--am-amber)"></i>계약 갱신 검토 (종료 60일 전)</span>
+            <span><i class="am-dot" style="background: var(--am-red)"></i>렌탈 종료</span>
+          </div>
+          <div class="am-grid" id="cal-grid" data-source="schedule asset_status"></div>
+        </div>
+        <div class="am-card am-list">
+          <h4 id="list-title">이 달의 일정</h4>
+          <p class="am-tnote">일정을 누르면 해당 자산의 상세 정보로 이동해요</p>
+          <div class="am-items" id="cal-list" data-source="schedule"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+dash.calc('asset_status', {
+  title: '자산별 계약 상태',
+  description: '오늘(한국 시간) 기준으로 렌탈 종료까지 남은 일수와, 렌탈 시작일부터 점검 주기마다 돌아오는 다음 점검일을 구합니다.',
+  inputs: ['assets'],
+  fn: (assets) => {
+    const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+    const addM = (s, n) => {
+      const y = +s.slice(0, 4), m = +s.slice(5, 7) - 1, d = +s.slice(8, 10);
+      const last = new Date(Date.UTC(y, m + n + 1, 0)).getUTCDate();
+      return new Date(Date.UTC(y, m + n, Math.min(d, last))).toISOString().slice(0, 10);
+    };
+    return assets.map(a => {
+      const end = String(a.rental_end).slice(0, 10), start = String(a.rental_start).slice(0, 10), cyc = Number(a.inspection_cycle_months);
+      let next = null;
+      for (let k = 1; k < 400; k++) { const d = addM(start, k * cyc); if (d > end) break; if (d >= today) { next = d; break; } }
+      const days = Math.round((Date.parse(end) - Date.parse(today)) / 864e5);
+      return { asset_id: a.asset_id, today, days_to_end: days, next_inspection: next, status: days < 0 ? '만료' : days <= 90 ? '만료 임박' : '정상' };
+    });
+  }
+});
+dash.calc('schedule', {
+  title: '정기 일정',
+  description: '자산마다 렌탈 시작일부터 점검 주기마다 정기 점검일을, 렌탈 종료일과 그 60일 전 계약 갱신 검토일을 일정으로 만듭니다.',
+  inputs: ['assets'],
+  fn: (assets) => {
+    const addM = (s, n) => {
+      const y = +s.slice(0, 4), m = +s.slice(5, 7) - 1, d = +s.slice(8, 10);
+      const last = new Date(Date.UTC(y, m + n + 1, 0)).getUTCDate();
+      return new Date(Date.UTC(y, m + n, Math.min(d, last))).toISOString().slice(0, 10);
+    };
+    const out = [];
+    assets.forEach(a => {
+      const start = String(a.rental_start).slice(0, 10), end = String(a.rental_end).slice(0, 10), cyc = Number(a.inspection_cycle_months);
+      const base = { asset_id: a.asset_id, category: a.category, location: a.location };
+      for (let k = 1; k < 400; k++) {
+        const d = addM(start, k * cyc);
+        if (d > end) break;
+        if (d >= '2026-01-01') out.push({ ...base, event_id: a.asset_id + '-I-' + d, date: d, kind: '정기 점검' });
+      }
+      const review = new Date(Date.parse(end) - 60 * 864e5).toISOString().slice(0, 10);
+      out.push({ ...base, event_id: a.asset_id + '-R-' + review, date: review, kind: '계약 갱신 검토' });
+      out.push({ ...base, event_id: a.asset_id + '-E-' + end, date: end, kind: '렌탈 종료' });
+    });
+    return out.sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0));
+  }
+});
+dash.calc('summary', {
+  title: '자산 요약',
+  description: '자산 수, 월·연간 렌탈 비용 합계, 90일 안에 계약이 끝나는 자산 수, 이번 달 정기 점검 건수를 셉니다.',
+  inputs: ['assets', 'asset_status', 'schedule'],
+  fn: (assets, asset_status, schedule) => {
+    const monthly = assets.reduce((s, a) => s + Number(a.monthly_fee), 0);
+    const today = asset_status.length ? asset_status[0].today : '';
+    return [{
+      count: assets.length,
+      monthly_total: monthly,
+      yearly_total: monthly * 12,
+      expiring_90: asset_status.filter(s => s.days_to_end >= 0 && s.days_to_end <= 90).length,
+      inspections_this_month: schedule.filter(e => e.kind === '정기 점검' && e.date.slice(0, 7) === today.slice(0, 7)).length
+    }];
+  }
+});
+</script>
+
+<script>
+(() => {
+  const fmt = d3.format(',');
+  const root = document.getElementById('dash-root') || document;
+  const q = (s) => root.querySelector(s);
+  const qa = (s) => Array.from(root.querySelectorAll(s));
+  const BAD = ['error', 'connect', 'declined', 'missing'];
+  const combine = (...ds) => BAD.some(s => ds.some(d => d.status === s)) ? 'error' : ds.some(d => d.status === 'loading') ? 'loading' : 'ok';
+  const dot = (s) => s ? String(s).slice(0, 10).replace(/-/g, '.') : '—';
+  const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+  const dowOf = (s) => DOW[new Date(s + 'T00:00:00Z').getUTCDay()];
+  const KIND_COLOR = { '정기 점검': 'var(--am-blue)', '계약 갱신 검토': 'var(--am-amber)', '렌탈 종료': 'var(--am-red)' };
+  const KIND_ORDER = { '렌탈 종료': 0, '계약 갱신 검토': 1, '정기 점검': 2 };
+  const dday = (n) => n == null ? '—' : n === 0 ? 'D-DAY' : n > 0 ? 'D-' + n : '만료 D+' + (-n);
+  const badgeCls = (n) => n < 0 || n <= 90 ? 'am-b-red' : n <= 180 ? 'am-b-amber' : 'am-b-gray';
+  const enc = (v) => String(v).replace(/%/g, '%25').replace(/&/g, '%26').replace(/=/g, '%3D');
+
+  let tab = 'assets';
+  let selected = null;
+  let viewMonth = null; // 'YYYY-MM'
+
+  function showTab(t, scroll) {
+    tab = t;
+    qa('.am-tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+    q('#assets').hidden = t !== 'assets';
+    q('#calendar').hidden = t !== 'calendar';
+    dash.setLink(t);
+    render();
+    if (scroll) q('#top').scrollIntoView({ block: 'start' });
+  }
+  qa('.am-tabs button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+  function selectAsset(id, fromCalendar) {
+    selected = id;
+    if (fromCalendar) { showTab('assets'); }
+    else render();
+    const det = q('#detail');
+    const box = q('#boxes');
+    if (det.offsetTop > box.offsetTop + 40) det.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else if (fromCalendar) q('#top').scrollIntoView({ block: 'start' });
+  }
+
+  const shiftMonth = (ym, n) => { const d = new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5, 7) - 1 + n, 1)); return d.toISOString().slice(0, 7); };
+  q('#cal-prev').addEventListener('click', () => { if (viewMonth) { viewMonth = shiftMonth(viewMonth, -1); render(); } });
+  q('#cal-next').addEventListener('click', () => { if (viewMonth) { viewMonth = shiftMonth(viewMonth, 1); render(); } });
+  q('#cal-today').addEventListener('click', () => { viewMonth = null; render(); });
+
+  function failInto(el) {
+    el.replaceChildren();
+    const f = document.createElement('div'); f.className = 'am-fail';
+    f.append(document.createElement('i'), 'Failed to load');
+    el.appendChild(f);
+  }
+
+  function render() {
+    const assets = dash.data('assets'), status = dash.data('asset_status'), sched = dash.data('schedule'), sum = dash.data('summary');
+    const A = assets.status === 'ok' ? assets.data : [];
+    const S = new Map((status.status === 'ok' ? status.data : []).map(s => [s.asset_id, s]));
+    const today = status.status === 'ok' && status.data[0] ? status.data[0].today : null;
+
+    const asof = q('#asof');
+    asof.classList.toggle('dash-skeleton', status.status === 'loading');
+    asof.textContent = today ? dot(today) + ' (' + dowOf(today) + ')' : '—';
+
+    /* tiles */
+    const s0 = (sum.status === 'ok' && sum.data[0]) || {};
+    qa('[data-source="summary"]').forEach(el => {
+      el.classList.toggle('dash-skeleton', sum.status === 'loading');
+      const v = s0[el.dataset.field];
+      el.textContent = sum.status === 'ok' && v != null ? fmt(v) : '—';
+    });
+
+    /* boxes */
+    const boxes = q('#boxes');
+    const bst = combine(assets, status);
+    boxes.classList.toggle('dash-skeleton', bst === 'loading');
+    const sorted = A.slice().sort((a, b) => ((S.get(a.asset_id) || {}).days_to_end ?? 1e9) - ((S.get(b.asset_id) || {}).days_to_end ?? 1e9) || String(a.asset_id).localeCompare(String(b.asset_id)));
+    if (!selected && sorted.length) selected = sorted[0].asset_id;
+    if (bst === 'error') failInto(boxes);
+    else if (bst !== 'ok') boxes.replaceChildren();
+    else {
+      boxes.replaceChildren();
+      sorted.forEach(a => {
+        const st = S.get(a.asset_id) || {};
+        const b = document.createElement('button');
+        b.className = 'am-box'; b.type = 'button';
+        b.setAttribute('aria-pressed', String(a.asset_id === selected));
+        const top = document.createElement('div'); top.className = 'am-box-top';
+        const ico = document.createElement('span'); ico.className = 'am-ico'; ico.textContent = String(a.category).slice(0, 1);
+        const badge = document.createElement('span'); badge.className = 'am-badge ' + badgeCls(st.days_to_end); badge.textContent = dday(st.days_to_end);
+        top.append(ico, badge);
+        const nm = document.createElement('div'); nm.className = 'am-box-name'; nm.textContent = a.category;
+        const loc = document.createElement('div'); loc.className = 'am-box-loc'; loc.textContent = a.location;
+        const foot = document.createElement('div'); foot.className = 'am-box-foot';
+        const fee = document.createElement('span'); fee.textContent = '월 ' + fmt(Number(a.monthly_fee)) + '원';
+        const end = document.createElement('span'); end.textContent = '~' + dot(a.rental_end);
+        foot.append(fee, end);
+        b.append(top, nm, loc, foot);
+        b.addEventListener('click', () => selectAsset(a.asset_id));
+        boxes.appendChild(b);
+      });
+    }
+
+    /* detail */
+    const a = A.find(x => x.asset_id === selected);
+    const st = (a && S.get(a.asset_id)) || {};
+    const where = a ? 'asset_id=' + enc(a.asset_id) : '';
+    const fieldFmt = {
+      category: v => v, location: v => v, asset_id: v => v, vendor: v => v, manager: v => v, phone: v => v,
+      rental_start: v => dot(v), rental_end: v => dot(v), monthly_fee: v => fmt(Number(v)) + '원',
+      inspection_cycle_months: v => v + '개월마다'
+    };
+    qa('#detail [data-source="assets"]').forEach(el => {
+      if (where) el.dataset.where = where; else delete el.dataset.where;
+      el.classList.toggle('dash-skeleton', assets.status === 'loading');
+      el.textContent = a && a[el.dataset.field] != null ? fieldFmt[el.dataset.field](a[el.dataset.field]) : '—';
+    });
+    qa('#detail [data-source="asset_status"]').forEach(el => {
+      if (where) el.dataset.where = where; else delete el.dataset.where;
+      const f = el.dataset.field;
+      if (f === 'days_to_end') {
+        el.className = 'am-badge d-s ' + (a ? badgeCls(st.days_to_end) : 'am-b-gray');
+        el.textContent = a && st.days_to_end != null ? dday(st.days_to_end) : '—';
+      } else {
+        el.textContent = a && st.next_inspection ? dot(st.next_inspection) + ' (' + dowOf(st.next_inspection) + ')' : (a ? '남은 점검 없음' : '—');
+      }
+    });
+
+    /* calendar */
+    const curMonth = today ? today.slice(0, 7) : null;
+    const ym = viewMonth || curMonth;
+    q('#cal-month').textContent = ym ? `${ym.slice(0, 4)}년 ${+ym.slice(5, 7)}월` : '—';
+    const grid = q('#cal-grid'), list = q('#cal-list');
+    const cst = combine(sched, status);
+    grid.classList.toggle('dash-skeleton', cst === 'loading');
+    list.classList.toggle('dash-skeleton', cst === 'loading');
+    if (cst === 'error') { failInto(grid); failInto(list); return; }
+    if (cst !== 'ok' || !ym) { grid.replaceChildren(); list.replaceChildren(); return; }
+    if (tab !== 'calendar') return;
+
+    const events = sched.data.slice().sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : KIND_ORDER[x.kind] - KIND_ORDER[y.kind]));
+    const byDate = d3.group(events, e => e.date);
+    grid.replaceChildren();
+    DOW.forEach((d, i) => { const h = document.createElement('div'); h.className = 'am-dow' + (i === 0 ? ' sun' : ''); h.textContent = d; grid.appendChild(h); });
+    const first = new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5, 7) - 1, 1));
+    const start = new Date(first.getTime() - first.getUTCDay() * 864e5);
+    const lastDay = new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5, 7), 0));
+    const cells = Math.ceil((first.getUTCDay() + lastDay.getUTCDate()) / 7) * 7;
+    for (let i = 0; i < cells; i++) {
+      const d = new Date(start.getTime() + i * 864e5);
+      const ds = d.toISOString().slice(0, 10);
+      const cell = document.createElement('div');
+      cell.className = 'am-day' + (ds.slice(0, 7) !== ym ? ' out' : '') + (ds === today ? ' today' : '');
+      const n = document.createElement('span'); n.className = 'am-dn' + (d.getUTCDay() === 0 ? ' sun' : ''); n.textContent = d.getUTCDate();
+      cell.appendChild(n);
+      const evs = byDate.get(ds) || [];
+      evs.slice(0, 3).forEach(e => {
+        const p = document.createElement('button'); p.type = 'button'; p.className = 'am-pill';
+        p.style.background = KIND_COLOR[e.kind];
+        p.textContent = e.category + ' ' + (e.kind === '정기 점검' ? '점검' : e.kind === '렌탈 종료' ? '종료' : '갱신 검토');
+        p.setAttribute('aria-label', `${ds} ${e.category} ${e.location} ${e.kind}`);
+        p.addEventListener('click', () => selectAsset(e.asset_id, true));
+        cell.appendChild(p);
+      });
+      if (evs.length > 3) { const m = document.createElement('span'); m.className = 'am-more'; m.textContent = '+' + (evs.length - 3) + '건'; cell.appendChild(m); }
+      if (evs.length) {
+        const dots = document.createElement('div'); dots.className = 'am-dots';
+        evs.forEach(e => { const i2 = document.createElement('i'); i2.className = 'am-dot'; i2.style.background = KIND_COLOR[e.kind]; dots.appendChild(i2); });
+        cell.appendChild(dots);
+      }
+      grid.appendChild(cell);
+    }
+
+    const monthEvents = events.filter(e => e.date.slice(0, 7) === ym);
+    q('#list-title').textContent = `${+ym.slice(5, 7)}월 일정 ${monthEvents.length}건`;
+    list.replaceChildren();
+    if (!monthEvents.length) { const e = document.createElement('div'); e.className = 'am-empty'; e.textContent = '이 달에는 일정이 없어요'; list.appendChild(e); }
+    monthEvents.forEach(e => {
+      const it = document.createElement('button'); it.type = 'button'; it.className = 'am-item';
+      const dt = document.createElement('div'); dt.className = 'am-idate';
+      dt.textContent = `${+e.date.slice(5, 7)}.${+e.date.slice(8, 10)}`;
+      const sm = document.createElement('small'); sm.textContent = dowOf(e.date) + '요일'; dt.appendChild(sm);
+      const body = document.createElement('div'); body.className = 'am-ibody';
+      const kb = document.createElement('span'); kb.className = 'am-badge ' + (e.kind === '렌탈 종료' ? 'am-b-red' : e.kind === '정기 점검' ? 'am-b-blue' : 'am-b-amber'); kb.textContent = e.kind;
+      kb.style.alignSelf = 'flex-start';
+      const t = document.createElement('b'); t.textContent = e.category;
+      const l = document.createElement('span'); l.textContent = e.location + (e.date < today ? ' · 지난 일정' : '');
+      body.append(kb, t, l);
+      it.append(dt, body);
+      it.addEventListener('click', () => selectAsset(e.asset_id, true));
+      list.appendChild(it);
+    });
+  }
+
+  dash.onData(render);
+  const h = location.hash.slice(1);
+  if (h === 'calendar') showTab('calendar');
+})();
+</script>
+
+</div>
+</body>
+</html>
